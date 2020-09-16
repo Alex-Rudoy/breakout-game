@@ -6,6 +6,8 @@ let ctx = canvas.getContext("2d");
 
 let x = canvas.width / 2;
 let y = canvas.height - 30;
+let x2 = canvas.width / 2;
+let y2 = canvas.height - 30;
 let ballRadius = 10;
 let dx = 3;
 let dy = -3;
@@ -64,6 +66,14 @@ function drawBall() {
   ctx.closePath();
 }
 
+function drawSecondBall() {
+  ctx.beginPath();
+  ctx.arc(x2, y2, ballRadius, 0, Math.PI * 2);
+  ctx.fillStyle = "#0095DD";
+  ctx.fill();
+  ctx.closePath();
+}
+
 function drawPaddle() {
   ctx.beginPath();
   ctx.rect(paddleX, canvas.height - paddleHeight, paddleWidth, paddleHeight);
@@ -105,22 +115,36 @@ function collisionDetection() {
         if (score == brickRowCount * brickColumnCount) {
           alert("YOU WIN, CONGRATULATIONS!");
           document.location.reload();
-          clearInterval(interval); // Needed for Chrome to end game
         }
       }
     }
   }
 }
+let prevTime = 0;
+let f = 0;
 
-function draw() {
+function draw(time) {
+  requestAnimationFrame(draw);
+  f = time - prevTime;
+  prevTime = time;
+  console.log(f, time, prevTime);
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   drawBall();
+  drawSecondBall();
   drawPaddle();
   drawBricks();
   drawScore();
   collisionDetection();
-  x += dx;
-  y += dy;
+
+  x2 += dx;
+  y2 += dy;
+
+  if (!isNaN(f)) {
+    f = (f * 60) / 1000;
+    x += dx * f;
+    y += dy * f;
+    paddleX += paddleDx * rightpressed * f - paddleDx * leftpressed * f;
+  }
 
   if (x + dx > canvas.width - ballRadius || x + dx < ballRadius) {
     dx = -dx;
@@ -134,11 +158,9 @@ function draw() {
     } else {
       alert("GAME OVER");
       document.location.reload();
-      clearInterval(interval); // Needed for Chrome to end game
     }
   }
 
-  paddleX += paddleDx * rightpressed - paddleDx * leftpressed;
   if (paddleX + paddleWidth > canvas.width) {
     paddleX = canvas.width - paddleWidth;
   }
@@ -146,4 +168,4 @@ function draw() {
     paddleX = 0;
   }
 }
-let interval = setInterval(draw, 16);
+draw();
