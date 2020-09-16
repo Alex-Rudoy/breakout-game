@@ -25,12 +25,13 @@ let brickHeight = 20;
 let brickPadding = 10;
 let brickOffsetTop = 30;
 let brickOffsetLeft = 30;
+let score = 0;
 
 let bricks = [];
 for (let c = 0; c < brickColumnCount; c++) {
   bricks[c] = [];
   for (var r = 0; r < brickRowCount; r++) {
-    bricks[c][r] = { x: 0, y: 0 };
+    bricks[c][r] = { x: 0, y: 0, status: 1 };
   }
 }
 
@@ -74,13 +75,39 @@ function drawPaddle() {
 function drawBricks() {
   for (var c = 0; c < brickColumnCount; c++) {
     for (var r = 0; r < brickRowCount; r++) {
-      bricks[c][r].x = c * (brickWidth + brickPadding) + brickOffsetLeft;
-      bricks[c][r].y = r * (brickHeight + brickPadding) + brickOffsetTop;
-      ctx.beginPath();
-      ctx.rect(bricks[c][r].x, bricks[c][r].y, brickWidth, brickHeight);
-      ctx.fillStyle = "#0095DD";
-      ctx.fill();
-      ctx.closePath();
+      if (bricks[c][r].status == 1) {
+        bricks[c][r].x = c * (brickWidth + brickPadding) + brickOffsetLeft;
+        bricks[c][r].y = r * (brickHeight + brickPadding) + brickOffsetTop;
+        ctx.beginPath();
+        ctx.rect(bricks[c][r].x, bricks[c][r].y, brickWidth, brickHeight);
+        ctx.fillStyle = "#0095DD";
+        ctx.fill();
+        ctx.closePath();
+      }
+    }
+  }
+}
+
+function drawScore() {
+  ctx.font = "16px Arial";
+  ctx.fillStyle = "#0095DD";
+  ctx.fillText("Score: " + score, 8, 20);
+}
+
+function collisionDetection() {
+  for (var c = 0; c < brickColumnCount; c++) {
+    for (var r = 0; r < brickRowCount; r++) {
+      var b = bricks[c][r];
+      if (x > b.x && x < b.x + brickWidth && y > b.y && y < b.y + brickHeight && b.status == 1) {
+        dy = -dy;
+        b.status = 0;
+        score++;
+        if (score == brickRowCount * brickColumnCount) {
+          alert("YOU WIN, CONGRATULATIONS!");
+          document.location.reload();
+          clearInterval(interval); // Needed for Chrome to end game
+        }
+      }
     }
   }
 }
@@ -90,6 +117,8 @@ function draw() {
   drawBall();
   drawPaddle();
   drawBricks();
+  drawScore();
+  collisionDetection();
   x += dx;
   y += dy;
 
