@@ -127,23 +127,22 @@ function draw(time) {
   requestAnimationFrame(draw);
   f = time - prevTime;
   prevTime = time;
-  console.log(f, time, prevTime);
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   drawBall();
-  drawSecondBall();
   drawPaddle();
   drawBricks();
   drawScore();
   collisionDetection();
-
-  x2 += dx;
-  y2 += dy;
+  f = (f * 60) / 1000;
 
   if (!isNaN(f)) {
-    f = (f * 60) / 1000;
     x += dx * f;
     y += dy * f;
     paddleX += paddleDx * rightpressed * f - paddleDx * leftpressed * f;
+  } else {
+    x += dx;
+    y += dy;
+    paddleX += paddleDx * rightpressed - paddleDx * leftpressed;
   }
 
   if (x + dx > canvas.width - ballRadius || x + dx < ballRadius) {
